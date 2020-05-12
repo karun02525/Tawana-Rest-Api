@@ -22,6 +22,7 @@ import com.tawana.models.authentication.AuthRequest;
 import com.tawana.models.authentication.ChangePassword;
 import com.tawana.models.authentication.ForgotPassword;
 import com.tawana.models.authentication.ProfileUpdate;
+import com.tawana.models.authentication.RegisterDevice;
 import com.tawana.models.authentication.User;
 import com.tawana.services.UserService;
 
@@ -44,6 +45,12 @@ public class AuthenticationController {
 	public ResponseEntity<?> createUser(@Valid @RequestBody User user) {
 		log.info("User register:"+user);
 		return userService.createUser(user);
+	}
+	
+	@PostMapping("/register-device")
+	public ResponseEntity<?> registerDevice(@Valid @RequestBody RegisterDevice reg_device) {
+		log.info("Devices register:"+reg_device);
+		return userService.registerDevice(reg_device);
 	}
 
 	@PostMapping("/forgot_password")

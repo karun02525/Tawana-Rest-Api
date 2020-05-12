@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,12 +30,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.tawana.exception.CustomException;
 import com.tawana.models.NotificationModel;
 import com.tawana.models.authentication.AuthRequest;
 import com.tawana.models.authentication.ChangePassword;
 import com.tawana.models.authentication.ForgotPassword;
 import com.tawana.models.authentication.ProfileUpdate;
+import com.tawana.models.authentication.RegisterDevice;
 import com.tawana.models.authentication.User;
 import com.tawana.models.authentication.VenderVerifyModel;
 import com.tawana.models.common.ResponseArrayModel;
@@ -109,6 +113,33 @@ public class UserServiceImpl implements UserService {
 					HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 	}
+	
+	
+	@Override
+	public ResponseEntity<?> registerDevice(RegisterDevice reg_device) {
+		String uid = SecurityContextHolder.getContext().getAuthentication().getName();
+		User model = mongoTemplate.findOne(new Query(Criteria.where("uid").is(uid.trim())), User.class);
+	        if (model == null) {
+	            return new ResponseEntity<>(new ResponseModel(false, "User id invalid! please try again"), HttpStatus.BAD_REQUEST);
+	        } else {
+	        	
+	        	RegisterDevice regModel = mongoTemplate.findOne(new Query(Criteria.where("device_id").is(reg_device.getDevice_id())), RegisterDevice.class);
+	        	 if (regModel == null) {
+	        		    reg_device.setUid(uid);
+		                mongoTemplate.save(reg_device);
+	        	 } else { 
+	                Query query = new Query();
+	                query.addCriteria(Criteria.where("device_id").is(reg_device.getDevice_id()));
+	                Update update = new Update().set("firebase_token", reg_device.getFirebase_token())
+	                		                     .set("updated_at",new Date());
+	                mongoTemplate.upsert(query, update, RegisterDevice.class);
+	                
+	        	 }
+        return new ResponseEntity<>(new ResponseModel(true, "Device has been updated successfully"), HttpStatus.OK);
+	    }
+
+	}
+	
 
 	@Override
 	public ResponseEntity<?> changePassword(ChangePassword changePassword) {
@@ -278,5 +309,7 @@ public class UserServiceImpl implements UserService {
                 return new ResponseEntity<>(new ResponseArrayModel(true, "All Notifications", mess), HttpStatus.OK);
 	        }
 	}
+
+	
 }
 

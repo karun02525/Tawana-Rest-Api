@@ -8,13 +8,16 @@ import com.tawana.models.authentication.AuthRequest;
 import com.tawana.models.authentication.ChangePassword;
 import com.tawana.models.authentication.ForgotPassword;
 import com.tawana.models.authentication.ProfileUpdate;
+import com.tawana.models.authentication.RegisterDevice;
 import com.tawana.models.authentication.User;
 
 
 public interface UserService {
 	
     ResponseEntity<?> createUser(User user);
-
+    
+    ResponseEntity<?> registerDevice(RegisterDevice reg_device);
+   
     ResponseEntity<?> login(AuthRequest user);
 
     ResponseEntity<?> forgotPassword(ForgotPassword forgotPassword);
